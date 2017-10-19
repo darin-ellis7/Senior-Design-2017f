@@ -5,6 +5,8 @@ from bs4 import *
 import requests
 import re
 import html
+import tldextract
+import nltk
 
 # this is the database script for any custom RSS feeds we use
 # needs to be run on the server periodically
@@ -30,45 +32,74 @@ def convertDate(orig_date):
     convertedDate = datetime.datetime.strptime(orig_date,"%Y-%m-%dT%H:%M:%SZ").strftime('%m/%d/%Y')
     return convertedDate
 
+# parses URL to get the domain name of each article's link - the source
+# one defect in handling the source is that, as of now, we don't know how to handle multiple-word sources beyond just storing it all as one string (so Fox News would just be stored as foxnews)
+def getSource(url):
+    ext = tldextract.extract(url)
+    source = ext.domain
+    return source
+
+# Newspaper library can get grab keywords from articles in conjunction with the nltk (natural language toolkit) library
+# this function prepares the article for language processing and returns an array of keywords from the article
+def getKeywords(article):
+    article.nlp()
+    return article.keywords
+    
 # goes through each entry in a given feed, check it for relevancy, and if relevant, add it to the database
 # if we can't get the data from the website (403/404 errors, whatever) - an exception occurs, and we move to the next article
 def parseFeed(RSS):
+    # config info for Newspaper - keep article html for user-friendly display, set browser user agent to a desktop computer header to help fight 403 errors
     config = Config()
     config.keep_article_html = True
     config.browser_user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_2) AppleWebKit/601.3.9 (KHTML, like Gecko) Version/9.0.2 Safari/601.3.9'
-    # link for our custom RSS feed - query is "US Supreme Court" (seems to give the best results
+
+    # begin parsing
     feed = parse(RSS)
-    print(len(feed.entries))
-    print()
+    total = len(feed.entries)
+    successes = 0
     for post in feed.entries:
         url = getURL(post['link'])
         title = cleanTitle(post['title'])
         date = convertDate(post['date'])
+        source = getSource(url)
         
         # we'll do relevancy check sometime around here
         
         a = Article(url,config)
         try:
             print('URL: ',url)
+            print('Source: ',source)
             a.download()
             a.parse()
+            
             # since tiny articles are generally useless, we check for length here
             # this also helps us weed out paywalls, snippets, maybe even some local news sources
             if len(a.text) > 500:
                 print('Title:',title)
                 print('Published', date)
-                print('Authors: ',a.authors)
+                if(len(a.authors) > 0):
+                    author = a.authors[0]
+                else:
+                    author = 'Unknown'
+                keywords = getKeywords(a)
+                print('Author: ',author)
+                print('Keywords: ', keywords)
                 print('Main Image: ', a.top_image)
+                successes += 1
+                print('Added')
             else:
                 print('Rejected - too short')
                 
         except ArticleException:
-            print('Couldn\'t download - error occurred')
-        
+            print('Rejected - error occurred')
+    
         print()
     
+    print(successes,"/",total,"articles added to database.")
+    print('==================================================')
     
 def main():
+    #Google Alert Custom feeds
     feeds = ['https://www.google.com/alerts/feeds/16346142240605984801/8005087395970124365','https://www.google.com/alerts/feeds/16346142240605984801/6834811291406727579']
     for feed in feeds:
         parseFeed(feed)
