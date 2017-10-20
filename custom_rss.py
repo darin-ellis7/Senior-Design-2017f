@@ -1,3 +1,4 @@
+#package dependencies
 from feedparser import *
 from newspaper import *
 from urllib import parse as urlparse
