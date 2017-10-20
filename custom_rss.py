@@ -6,7 +6,6 @@ import requests
 import re
 import html
 import tldextract
-import nltk
 
 # this is the database script for any custom RSS feeds we use
 # needs to be run on the server periodically
