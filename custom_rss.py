@@ -1,14 +1,20 @@
-#package dependencies
+# libraries that need to be downloaded (preferably using pip)
 from feedparser import *
 from newspaper import *
-from urllib import parse as urlparse
-from bs4 import *
-import requests
-import re
-import html
-import tldextract
 import MySQLdb
 import MySQLdb.cursors
+import requests
+import tldextract
+
+# libraries that should be built into Python (don't need to be downloaded)
+from urllib import parse as urlparse
+import re
+import html
+import ssl
+
+# I have no idea what this is or what it does but it makes this script work on Python 3.6 (
+if hasattr(ssl, '_create_unverified_context'):
+    ssl._create_default_https_context = ssl._create_unverified_context
 
 # this is the database script for any custom RSS feeds we use
 # needs to be run on the server periodically
@@ -118,7 +124,7 @@ def parseFeed(RSS,c):
         date = convertDate(post['date'])
         source = getSource(url)
         
-        msg = url + "... "
+        msg = url + '\n' + title + "\n"
         
         if ArticleIsDuplicate(title,c):
             msg += "Rejected - already in database"
