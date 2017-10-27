@@ -172,7 +172,7 @@ def main():
     c = db.cursor(MySQLdb.cursors.DictCursor)
     
     #Google Alert custom feeds
-    feeds = ['https://www.google.com/alerts/feeds/16346142240605984801/8005087395970124365','https://www.google.com/alerts/feeds/16346142240605984801/6834811291406727579']
+    feeds = ['https://www.google.com/alerts/feeds/16346142240605984801/8005087395970124365','https://www.google.com/alerts/feeds/16346142240605984801/12974548777403563412']
     for feed in feeds:
         parseFeed(feed,c)
         
