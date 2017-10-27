@@ -8,4 +8,8 @@
     - python -m pip install mysqlclient
     - python -m pip install tldextract
     - python -m pip install requests
+5. Obtain nltk/punkt
+    -python
+        >>import nltk
+        >>nltk.download("punkt")
 5. python PATH\custom_rss.py
