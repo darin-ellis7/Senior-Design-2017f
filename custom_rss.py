@@ -5,6 +5,8 @@ import MySQLdb
 import MySQLdb.cursors
 import requests
 import tldextract
+from PIL import Image
+
 
 # libraries that should be built into Python (don't need to be downloaded)
 from urllib import parse as urlparse
@@ -15,6 +17,11 @@ import ssl
 # I have no idea what this is or what it does but it makes this script work on Python 3.6
 if hasattr(ssl, '_create_unverified_context'):
     ssl._create_default_https_context = ssl._create_unverified_context
+    
+opener=urllib.request.build_opener()
+opener.addheaders=[('User-Agent','Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1941.0 Safari/537.36')]
+urllib.request.install_opener(opener)
+
 
 # this is the database script for any custom RSS feeds we use
 # needs to be run on the server periodically
@@ -53,10 +60,37 @@ def getKeywords(article):
     article.nlp()
     return article.keywords
 
-# inserts an article's headline image into the database (since we haven't figured out yet how to avoid the useless images)
-# for now this is just a website URL
+# inserts an article's headline image into the database
 def addImage(image,idArticle,c):
-    c.execute("""INSERT INTO image(idArticle,path) VALUES (%s,%s)""",(idArticle, image))
+    # insert preliminary image entry (no image yet)
+    c.execute("""INSERT INTO image(idArticle) VALUES (%s)""",(idArticle, ))
+    idImage = c.lastrowid
+    imageDownloaded = download_image(image,idImage)
+    
+    # if image is successfully downloaded, update prelim entry to a permanent entry with image included
+    if imageDownloaded != None:
+        path = imageDownloaded
+        c.execute("""UPDATE image SET path = (%s) WHERE idArticle = (%s) AND idImage = (%s)""",(path, idArticle,idImage))
+        print("Image successfully downloaded")
+    else:
+        # if file can't be downloaded, delete prelim entry
+        c.execute("""DELETE FROM image WHERE idImage = (%s)""",(idImage, ))
+        print('Image couldn\'t be downloaded')
+        
+# goes to image url and downloads the image (unless it doesn't)
+# if image is downloaded, the image filename (formatted as id{idImage}.jpg) is returned
+# if error occurs during download, return None
+def download_image(url,idImage):
+    try:
+        path = "./images/"
+        filename = "id" + str(idImage) + ".jpg"
+        full = path + filename
+        urllib.request.urlretrieve(url,full)
+        im = Image.open(full)
+        im.convert('RGB').save(full,"JPEG",quality=85,optimize=True)
+        return filename
+    except urllib.error.HTTPError:
+        return None
 
 # inserts keywords from the Article keyword array into the database one-by-one 
 def addKeywords(keywords,idArticle,c):
