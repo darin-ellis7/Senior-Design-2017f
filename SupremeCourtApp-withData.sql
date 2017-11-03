@@ -541,7 +541,7 @@ INSERT INTO `article_keywords` (`idKey`, `keyword`) VALUES
 
 CREATE TABLE `image` (
   `idImage` int(11) NOT NULL,
-  `path` varchar(500) CHARACTER SET utf8 NOT NULL,
+  `path` varchar(500) CHARACTER SET utf8,
   `idArticle` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -1438,14 +1438,14 @@ ALTER TABLE `keyword_instances`
 -- Constraints for table `image`
 --
 ALTER TABLE `image`
-  ADD CONSTRAINT `idArticle` FOREIGN KEY (`idArticle`) REFERENCES `article` (`idArticle`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+  ADD CONSTRAINT `idArticle` FOREIGN KEY (`idArticle`) REFERENCES `article` (`idArticle`) ON DELETE CASCADE ON UPDATE NO ACTION;
 
 --
 -- Constraints for table `keyword_instances`
 --
 ALTER TABLE `keyword_instances`
-  ADD CONSTRAINT `idArticle2` FOREIGN KEY (`idArticle`) REFERENCES `article` (`idArticle`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  ADD CONSTRAINT `idKey` FOREIGN KEY (`idKey`) REFERENCES `article_keywords` (`idKey`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+  ADD CONSTRAINT `idArticle2` FOREIGN KEY (`idArticle`) REFERENCES `article` (`idArticle`) ON DELETE CASCADE ON UPDATE NO ACTION,
+  ADD CONSTRAINT `idKey` FOREIGN KEY (`idKey`) REFERENCES `article_keywords` (`idKey`) ON DELETE CASCADE ON UPDATE NO ACTION;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

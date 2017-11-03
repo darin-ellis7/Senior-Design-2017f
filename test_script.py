@@ -1,11 +1,12 @@
 # libraries that need to be downloaded (preferably using pip)
 from feedparser import *
 from newspaper import *
-import requests
 import tldextract
+from PIL import Image
 
 # libraries that should be built into Python (don't need to be downloaded)
 from urllib import parse as urlparse
+import urllib.request
 import re
 import html
 import ssl
@@ -13,6 +14,12 @@ import ssl
 # I have no idea what this is or what it does but it makes this script work on Python 3.6
 if hasattr(ssl, '_create_unverified_context'):
     ssl._create_default_https_context = ssl._create_unverified_context
+    
+
+opener=urllib.request.build_opener()
+opener.addheaders=[('User-Agent','Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1941.0 Safari/537.36')]
+urllib.request.install_opener(opener)
+    
 
 # this is a test version of the script (doesn't do any database addition)
 # we can use this to help gauge whether our relevancy check is working
@@ -50,7 +57,16 @@ def getKeywords(article):
     article.nlp()
     return article.keywords
 
-
+def download_image(url,i):
+    try:
+        filename = "./images/test" + str(i) + ".jpg"
+        urllib.request.urlretrieve(url,filename)
+        im = Image.open(filename)
+        im.convert('RGB').save(filename,"JPEG",quality=70,optimize=True)
+        print("success")
+    except urllib.error.HTTPError:
+        print('couldn\'t download')    
+    
 # barebones check for relevancy because local and international news are starting to creep into the database
 # seems to get pretty good results (it's quite selective)
 def relevant(keywords, title,source):
@@ -116,6 +132,7 @@ def parseFeed(RSS):
     feed = parse(RSS)
     total = len(feed.entries)
     successes = 0
+    i = 0
     for post in feed.entries:
         url = getURL(post['link'])
         title = cleanTitle(post['title'])
@@ -156,21 +173,30 @@ def parseFeed(RSS):
                     print('Rejected - Deemed irrelevant')
                 else:
                     successes += 1
+                    download_image(image,i)
                     print('Added')
+                    
             
             else:
                 print('Rejected - too short')
+            i += 1
+            
             
         except ArticleException:
             print('Rejected - error occurred')
+            i += 1
+            
+        
         print()
+        
     print(successes,"/",total,"articles added to database.")
     print('=======================================================')
 
 def main():
     
     #Google Alert custom feeds
-    feeds = ['https://www.google.com/alerts/feeds/16346142240605984801/8005087395970124365','https://www.google.com/alerts/feeds/16346142240605984801/12974548777403563412','https://www.google.com/alerts/feeds/16346142240605984801/10736272716109264625','https://www.google.com/alerts/feeds/16346142240605984801/11622717956471844582']
+    feeds = ['https://www.google.com/alerts/feeds/16346142240605984801/8005087395970124365']
+    #,'https://www.google.com/alerts/feeds/16346142240605984801/12974548777403563412','https://www.google.com/alerts/feeds/16346142240605984801/10736272716109264625','https://www.google.com/alerts/feeds/16346142240605984801/11622717956471844582']
     for feed in feeds:
         parseFeed(feed)
 

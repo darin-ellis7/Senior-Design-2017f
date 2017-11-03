@@ -3,7 +3,6 @@ from feedparser import *
 from newspaper import *
 import MySQLdb
 import MySQLdb.cursors
-import requests
 import tldextract
 from PIL import Image
 
@@ -17,11 +16,11 @@ import ssl
 # I have no idea what this is or what it does but it makes this script work on Python 3.6
 if hasattr(ssl, '_create_unverified_context'):
     ssl._create_default_https_context = ssl._create_unverified_context
-    
+
+# set user header for image requests (cuts down on 403 errors)
 opener=urllib.request.build_opener()
 opener.addheaders=[('User-Agent','Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1941.0 Safari/537.36')]
 urllib.request.install_opener(opener)
-
 
 # this is the database script for any custom RSS feeds we use
 # needs to be run on the server periodically
@@ -218,7 +217,6 @@ def parseFeed(RSS,c):
         if ArticleIsDuplicate(title,c):
             print("Rejected - already in database")
         else: 
-            # we'll do relevancy check sometime around here
             a = Article(url,config)
             try:
                 a.download()
