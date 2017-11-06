@@ -96,17 +96,19 @@
             
 <div class="row">
 <div class="col-sm-12">
-<table class="table">
+<table class="table table-bordered dataTable no-footer">
              <thead>
+                <tr role="row">
     <th><strong>Title</strong></th>
     <th><strong>Source</strong></th>
 <th class ="sorting_asc tabindex="0" aria-controls="example" rowspan="1" colspan="1" role="grid" aria-describedby="example-info";"><strong>Date</strong></th>
 </tr>
+                </tr>
              </thead>
 <?php while ($row = mysqli_fetch_array($query)) { ?>
   
 <tr>
-<td><button class="btn btn-link"><?php echo $row['title']; ?></button></td>
+<td><button class="btn btn-link" style="color:black"><?php echo $row['title']; ?></button></td>
 <td><?php echo $row['source']; ?></td>
 <td><?php echo $row['date']; ?></td>
 </tr>
