@@ -57,15 +57,15 @@ def getKeywords(article):
     article.nlp()
     return article.keywords
 
-def download_image(url,i):
-    try:
-        filename = "./images/test" + str(i) + ".jpg"
-        urllib.request.urlretrieve(url,filename)
-        im = Image.open(filename)
-        im.convert('RGB').save(filename,"JPEG",quality=70,optimize=True)
-        print("success")
-    except urllib.error.HTTPError:
-        print('couldn\'t download')    
+#def download_image(url,i):
+    #try:
+        #filename = "./images/test" + str(i) + ".jpg"
+        #urllib.request.urlretrieve(url,filename)
+        #im = Image.open(filename)
+        #im.convert('RGB').save(filename,"JPEG",quality=70,optimize=True)
+        #print("success")
+    #except urllib.error.HTTPError:
+        #print('couldn\'t download')    
     
 # barebones check for relevancy because local and international news are starting to creep into the database
 # seems to get pretty good results (it's quite selective)
@@ -173,7 +173,7 @@ def parseFeed(RSS):
                     print('Rejected - Deemed irrelevant')
                 else:
                     successes += 1
-                    download_image(image,i)
+                    #download_image(image,i)
                     print('Added')
                     
             
