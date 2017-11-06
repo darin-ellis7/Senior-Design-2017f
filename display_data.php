@@ -58,20 +58,23 @@
 <div class='container'>
 <div class='content-wrapper'>
 <div class='row'>
-<div class='col-xs-12 col-sm-12 col-md-8 col-lg-8'>
-</div>
+
 <div class='col-xs-12 col-sm-12 col-md-5 col-lg-5 center-block'>
 
 <div class="input-group">
 <div class="input-group-btn search-panel">
-<button type="button" class="btn btn-default" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+<button type="button" class="btn btn-default" data-toggle="dropdown">
 <span id="search_concept">Search By</span> <span class="caret"></span>
 </button>
 <ul class="dropdown-menu" aria-labelledby="search_concept">
-<li><a href="#" name="searchBy" value="title">Title</a></li>
-<li><a href="#" name="searchBy" value="source">Source</a></li>
-<li><a href="#" name="searchBy" value="keyword">Keyword</a></li>
+<<<<<<< HEAD
+=======
+<li><a href="">Title</a></li>
+<li><a href="#">Source</a></li>
+<li><a href="#">Keyword</a></li>
+>>>>>>> 26dc332cbdb9e94d52e8fe53323cd58b1c363e9b
 </ul>
+
 </div>
 <form name="navbar-form" method="GET" action="display_data.php">
 <div class='input-group'>
@@ -91,18 +94,19 @@
 
 <tr>
             
-<div class="container">
-<table class="table table-hover table-condensed cellspacing="0" width="100%" id="mydata" >
+<div class="row">
+<div class="col-sm-12">
+<table class="table">
              <thead>
     <th><strong>Title</strong></th>
     <th><strong>Source</strong></th>
-    <th><strong>Date</strong></th>
+<th class ="sorting_asc tabindex="0" aria-controls="example" rowspan="1" colspan="1" role="grid" aria-describedby="example-info";"><strong>Date</strong></th>
 </tr>
              </thead>
 <?php while ($row = mysqli_fetch_array($query)) { ?>
   
 <tr>
-<td><?php echo $row['title']; ?></td>
+<td><button class="btn btn-link"><?php echo $row['title']; ?></button></td>
 <td><?php echo $row['source']; ?></td>
 <td><?php echo $row['date']; ?></td>
 </tr>
@@ -111,18 +115,50 @@
 </table>
 
 </div>
-<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+</div>
+<div class="dataTables_paginate paging_simple-number center-block" id="example_paginate">
+<ul class="pagination">
+<li class="paginate_button previos disabled" id="example_previous">
+<a href="#" aria-controls="example" data-dt-idx="0" tabindex="0">Previous</a>
+</li>
+<li class="paginate_button active">
+<a href="#" aria-controls="example" data-dt-idx="1" tabindex="0">1</a>
+</li>
+<li class="paginate_button active">
+<a href="#" aria-controls="example" data-dt-idx="2" tabindex="0">2</a>
+</li>
+<li class="paginate_button active">
+<a href="#" aria-controls="example" data-dt-idx="3" tabindex="0">3</a>
+</li>
+<li class="paginate_button active">
+<a href="#" aria-controls="example" data-dt-idx="4" tabindex="0">4</a>
+</li>
+<li class="paginate_button active">
+<a href="#" aria-controls="example" data-dt-idx="5" tabindex="0">5</a>
+</li>
+<li class="paginate_button next" id="example_next">
+<a href="#" aria-controls="example" data-dt-idx="6" tabindex="0">Next</a>
+</li>
+</ul>
+</div>
+<!-- jQuery (necessary for Bootstraps JavaScript plugins) -->
              <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
               <script src="js/jquery.js"></script>
+             <script src="js/dropdown.js"></script>
+             <script src="js/src/dropdown.js"></script>
              <!-- Include all compiled plugins (below), or include individual files as needed -->
              <script src="js/bootstrap.min.js"></script>
              <script src="js/jquery.dataTables.min.js"></script>
              <script src="js/dataTables.bootstrap.min.js"></script>
+            <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+            <script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+            <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+            <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
              <script>
             
              $('#mydata').DataTable();
-             
-             </scritpt>
+           
+             </script>
          
              </body>
 </html>
