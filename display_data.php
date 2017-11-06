@@ -68,9 +68,9 @@
 <span id="search_concept">Search By</span> <span class="caret"></span>
 </button>
 <ul class="dropdown-menu" aria-labelledby="search_concept">
-<li><a href="male">Title</a></li>
-<li><a href="femal">Source</a></li>
-<li><a href="#">Keyword</a></li>
+<li><a href="#" name="searchBy" value="title">Title</a></li>
+<li><a href="#" name="searchBy" value="source">Source</a></li>
+<li><a href="#" name="searchBy" value="keyword">Keyword</a></li>
 </ul>
 </div>
 <form name="navbar-form" method="GET" action="display_data.php">
