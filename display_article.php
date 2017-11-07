@@ -12,7 +12,7 @@
 <link href="css/dataTables.bootstrap.min.css" rel="stylesheet">
 <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" />
 <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-<!-- WARNING: Respond.js doesnt work if you view the page via file: -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
 <!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -35,122 +35,82 @@
 <?php
    
     include "search.php";
-    
-    $sql = "SELECT date, title, source, url FROM article ";
+    $search_term = $_GET['idArticle'];
+    $sql = "SELECT date, title, source, url FROM article WHERE idArticle='%{$search_term}%'";
     //keep it for keyword
-    $keyword = "SELECT title,source, date FROM article NATURAL JOIN article_keywords NATURAL JOIN keyword_instances";
+    //$keyword = "SELECT title,source, date FROM article NATURAL JOIN article_keywords NATURAL JOIN keyword_instances";
     
  
     
     if (isset($_POST['search'])) {
         
-        $search_term = mysqli_real_escape_string($connect, $_POST['search_box']);
+        $search_term = $_GET['idArticle'];
         
-        $sql .= "WHERE title like '%{$search_term}%'";
+        $sql .= "WHERE idArticle='%{$search_term}%'";
+	   //echo $sql;
     }
     else {
-        $sql = "SELECT title, source, date, idArticle FROM article";
+	   $search_term = $_GET['idArticle'];
+	   $sql = "SELECT date, title, article_text, url FROM article WHERE idArticle='{$search_term}'";
+    	   //echo $sql;
           
           }
     $query = mysqli_query($connect, $sql) or die(mysqli_connect_error());
     
-    ?><div class='container'>
+    ?>
+<div class='container'>
 <div class='content-wrapper'>
 <div class='row'>
-
-<div class='col-xs-12 col-sm-12 col-md-5 col-lg-5 center-block'>
+<div class='col-xs-12 col-sm-12 col-md-8 col-lg-8'>
 </div>
+<div class='col-xs-12 col-sm-12 col-md-5 col-lg-5 center-block'>
+
 <div class="input-group">
 <div class="input-group-btn search-panel">
-<button type="button" class="btn btn-default" data-toggle="dropdown">
+<button type="button" class="btn btn-default data-toggle="dropdown">
 <span id="search_concept">Search By</span> <span class="caret"></span>
-</button>
-<ul class="dropdown-menu" aria-labelledby="search_concept">
-<li><a href="">Title</a></li>
-<li><a href="#">Source</a></li>
-<li><a href="#">Keyword</a></li>
+<ul class="dropdown-menu">
+<li><a href="localhost">Title</a></li>
+<li><a href="localhost">Source</a></li>
+<li><a href="">Keyword</a></li>
 </ul>
 
+</button>
 </div>
-<form name="navbar-form" method="GET" action="display_data.php">
+<form name="navbar-form" method="POST" action="display_data.php">
 <div class='input-group'>
 <input class='form-control' type="text" name="search_box" value="" placeholder='Search' />
 <span class="input-group-btn">
-<button type='submit' class='btn btn-default'>
+<button type='submit' name="search" class='btn btn-default'>
 <span class='glyphicon glyphicon-search'></span>
-
 </button>
 </span>
 </div>
   </div>
 </div>
-
-
 </form>
-
 <tr>
             
-<div class="row">
-<div class="col-sm-12">
-<table class="table">
-             <thead>
-    <th><strong>Title</strong></th>
-    <th><strong>Source</strong></th>
-<th class ="sorting_asc tabindex="0" aria-controls="example" rowspan="1" colspan="1" role="grid" aria-describedby="example-info";"><strong>Date</strong></th>
-</tr>
              </thead>
 <?php while ($row = mysqli_fetch_array($query)) { ?>
   
-<tr class='clickable-row' data-href='./display_article.php?idArticle=<?php echo $row['idArticle']; ?>'>
-	<td><button class="btn btn-link" style="color:black"><?php echo $row['title']; ?></button></td>
-	<td><?php echo $row['source']; ?></td>
-	<td><?php echo $row['date']; ?></td>
-</tr>
+
+</br></br><b><big><?php echo $row['title']; ?></b></big></br>
+<?php echo $row['date']; ?></br>
+<?php echo $row['article_text']; ?></br>
+
  <?php }?>
 
 </table>
-</div>
-</div>
-<div class="dataTables_paginate paging_simple-number center-block" id="example_paginate">
-<ul class="pagination">
-<li class="paginate_button previos disabled" id="example_previous">
-<a href="#" aria-controls="example" data-dt-idx="0" tabindex="0">Previous</a>
-</li>
-<li class="paginate_button active">
-<a href="#" aria-controls="example" data-dt-idx="1" tabindex="0">1</a>
-</li>
-<li class="paginate_button active">
-<a href="#" aria-controls="example" data-dt-idx="2" tabindex="0">2</a>
-</li>
-<li class="paginate_button active">
-<a href="#" aria-controls="example" data-dt-idx="3" tabindex="0">3</a>
-</li>
-<li class="paginate_button active">
-<a href="#" aria-controls="example" data-dt-idx="4" tabindex="0">4</a>
-</li>
-<li class="paginate_button active">
-<a href="#" aria-controls="example" data-dt-idx="5" tabindex="0">5</a>
-</li>
-<li class="paginate_button next" id="example_next">
-<a href="#" aria-controls="example" data-dt-idx="6" tabindex="0">Next</a>
-</li>
-</ul>
+
 </div>
 <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-		
              <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
               <script src="js/jquery.js"></script>
              <!-- Include all compiled plugins (below), or include individual files as needed -->
              <script src="js/bootstrap.min.js"></script>
              <script src="js/jquery.dataTables.min.js"></script>
              <script src="js/dataTables.bootstrap.min.js"></script>
-		  <script> 
-		jQuery(document).ready(function($) {
-    			$(".clickable-row").click(function() {
-        			window.location = $(this).data("href");
-    			});
-		});
-		  </script>
              <script>
             
              $('#mydata').DataTable();
