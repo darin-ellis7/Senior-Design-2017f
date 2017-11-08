@@ -50,7 +50,7 @@
         
                 $search_term = mysqli_real_escape_string($connect, $_GET['search_box']);
         
-                $sql .= "WHERE title, source like '%{$search_term}%'";
+                $sql .= "WHERE title like '%{$search_term}%'";
             }
         else {
                 $sql = "SELECT title, source, date, idArticle FROM article";
