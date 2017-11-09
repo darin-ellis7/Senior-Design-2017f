@@ -5,7 +5,9 @@ import MySQLdb
 import MySQLdb.cursors
 import tldextract
 from PIL import Image
-
+#from google.cloud import vision
+#from google.cloud.vision import types
+#import io
 
 # libraries that should be built into Python (don't need to be downloaded)
 from urllib import parse as urlparse
@@ -60,11 +62,11 @@ def getKeywords(article):
     return article.keywords
 
 # inserts an article's headline image into the database
-def addImage(image,idArticle,c):
+def addImage(image_url,idArticle,c):
     # insert preliminary image entry (no image yet)
-    c.execute("""INSERT INTO image(idArticle) VALUES (%s)""",(idArticle, ))
+    c.execute("""INSERT INTO image(idArticle, url) VALUES (%s,%s)""",(idArticle, image_url))
     idImage = c.lastrowid
-    imageDownloaded = download_image(image,idImage)
+    imageDownloaded = download_image(image_url,idImage)
     
     # if image is successfully downloaded, update prelim entry to a permanent entry with image included
     if imageDownloaded != None:
@@ -81,15 +83,25 @@ def addImage(image,idArticle,c):
 # if error occurs during download, return None
 def download_image(url,idImage):
     try:
-        path = "./images/"
-        filename = "id" + str(idImage) + ".jpg"
+        path = "./images/" # for this to work the images folder must be in the same directory as this script
+        filename = "id" + str(idImage) + ".jpg" # image file is named according to its idImage in the database
         full = path + filename
-        urllib.request.urlretrieve(url,full)
+        urllib.request.urlretrieve(url,full) # save image as a jpg even if it isn't (this probably isn't ideal but it seems to work) 
         im = Image.open(full)
-        im.convert('RGB').save(full,"JPEG",quality=85,optimize=True)
+        im.convert('RGB').save(full,"JPEG",quality=85,optimize=True) # then convert the image to an actual jpg
         return filename
-    except urllib.error.HTTPError:
+    except (urllib.error.HTTPError, OSError) as error: # check if any errors occur (problem retrieving image or OSError) - the OSError has only occurred once, doesn't seem to be frequent, not sure why it happened but it's handled
         return None
+
+# uses Google Cloud Vision API to detect entities in the image
+# should get entity descriptions and their respective score (higher = more likely to be relevant to the image)
+def analyzeImage():
+    print('lol')
+
+# uses Google Natural Language API to determine the sentiment of an article
+# should get the sentiment score and magnitude of that score
+def analyzeText():
+    print('lol')
 
 # inserts keywords from the Article keyword array into the database one-by-one 
 def addKeywords(keywords,idArticle,c):
@@ -137,17 +149,39 @@ def KeywordIsDuplicate(key, c):
         return False
     else:
         return True
-    
 
+# determines whether article is behind a paywall, since such sites often don't give the full article text (or none at all)
+# honestly there's not much of an automatic way to do this - known paywalled sources should be added to this list (though some like NYTimes seem to give full content)
+def hasPaywall(source):
+    knownPaywalls = ['law360','law'] 
+    if source in knownPaywalls:
+        return True
+    else:
+        return False
+
+# a sort of "relevancy" check for article images, since publication logos often show up if an article does not have any images
+# checks image link against list of known logo links, or strings that most likely give away that an image is a logo
+def isLogo(image):
+    knownLogos = ['https://s4.reutersmedia.net/resources_v2/images/rcom-default.png','https://www.usnews.com/static/images/favicon.ico'] # usnews and reuters often pop up in the feed, sometimes with these default image links (so we can filter them out)
+    
+    if image in knownLogos or '.ico' in image or 'favicon' in image or 'default' in image or 'logo' in image: # .ico and favicon are terms usually associated with site icons, and chances are that a link with "default" in it is a generic site image
+        return True
+    else:
+        return False
+    
 # barebones check for relevancy because local and international news are starting to creep into the database
 # seems to get pretty good results (it's quite selective)
 def relevant(keywords, title,source):
+    # set everything to lowercase to standardize for checking
     title = title.lower()
     
+    # these are sources that seem to pop up often about the SC in India - kill anything from these websites
     avoidedSources = ['indiatimes','thehindu']
     
+    # foreign supreme courts that appear most frequently
     foreignCountries = ['india','kenya','canada']
     
+    # use these lists of states & abbreviations to filter out state supreme courts
     states = ["Alabama","Alaska","Arizona","Arkansas","California","Colorado",
   "Connecticut","Delaware","Florida","Georgia","Hawaii","Idaho","Illinois",
   "Indiana","Iowa","Kansas","Kentucky","Louisiana","Maine","Maryland",
@@ -163,12 +197,15 @@ def relevant(keywords, title,source):
           "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", 
           "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"]
     
+    # these are giveaways that an article is relevant
     if 'us supreme court' in title or 'u.s. supreme court' in title:
         return True
     
+    # article needs supreme and court as keywords
     if 'supreme' not in keywords or 'court' not in keywords:
         return False
     
+    # drop any article that relates to an avoided source or foreign country (most likely about foreign supreme courts)
     if source.lower() in avoidedSources:
         return False
     
@@ -176,6 +213,7 @@ def relevant(keywords, title,source):
         if country in title or country in keywords:
             return False
     
+    # check if the string "[state] Supreme Court" is in the title ([state] can be the word "state", a state name, or a state abbreviation) - this is generally a give away that this is a local Supreme Court
     if 'supreme court' in title:
         if 'state supreme court' in title:
             return False
@@ -214,10 +252,11 @@ def parseFeed(RSS,c):
         print('Title:',title)
         print('Source:',source)
         
+        # check for duplicates - otherwise, add to database
         if ArticleIsDuplicate(title,c):
             print("Rejected - already in database")
         else: 
-            a = Article(url,config)
+            a = Article(url,config) # use Newspaper to grab article text + info
             try:
                 a.download()
                 a.parse()
@@ -236,17 +275,23 @@ def parseFeed(RSS,c):
                         image = None
                     else:
                         image = a.top_image
-                    if not relevant(keywords,title,source):
-                        print('Rejected - deemed irrelevant')
+                        if isLogo(image):
+                            print('Image rejected - most likely a logo')
+                            image = None
+                    
+                    if hasPaywall(source):
+                        print('Rejected - source known to have a paywall')
                     else:
-                        addToDatabase(url,source,author,date,text,title,keywords,image,c)
-                        successes += 1
-                        print('Added to database')
-                
+                        if not relevant(keywords,title,source):
+                            print('Rejected - deemed irrelevant')
+                        else:
+                            addToDatabase(url,source,author,date,text,title,keywords,image,c)
+                            successes += 1
+                            print('Added to database')                        
                 else:
                     print('Rejected - too short')
                 
-            except ArticleException:
+            except ArticleException: # article couldn't download (throw this message and move on)
                 print('Rejected - error occurred')
         print()
 
@@ -256,6 +301,7 @@ def parseFeed(RSS,c):
         
 def main():
     
+    # connect to database
     db = MySQLdb.connect(host="127.0.0.1",port=3306,user="root",password="",db="SupremeCourtApp",use_unicode=True,charset="utf8")
     db.autocommit(True)
     c = db.cursor(MySQLdb.cursors.DictCursor)
