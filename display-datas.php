@@ -50,6 +50,9 @@ Sort by:
 
 </button>
 </span>
+    <br>
+From: <input type="date" name="dateFrom" >
+To: <input type="date" name="dateTo" >
 </div>
 </div>
 </div>
@@ -108,6 +111,17 @@ echo "<button class=\"btn btn-default\"><a href=\""; echo $csvURL; echo "\">Down
     else // default search yields all articles
     {
         $sql .= "FROM article ";
+    }
+     if(!empty($_GET['dateFrom']) && !empty($_GET['dateTo']))
+    {
+        if(isset($_GET['search_query']))
+        {
+            $sql .= "AND date BETWEEN '{$_GET['dateFrom']}' AND '{$_GET['dateTo']}'";
+        }
+        else
+        {
+            $sql .= "WHERE date BETWEEN '{$_GET['dateFrom']}' AND '{$_GET['dateTo']}'";
+        }
     }
     $query = mysqli_query($connect, $sql) or die(mysqli_connect_error()); // execute query
     ?>
