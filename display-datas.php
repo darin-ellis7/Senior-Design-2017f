@@ -137,7 +137,7 @@ $cou=mysqli_num_rows($query);
 $a=ceil($a);
     for($b=1; $b<=$a;$b++)
     {
-        ?> <a href="display-dates.php?page=<?php  echo  $b; ?>" style="text-decoration:none"><?php echo $b." "; ?></a><?php
+        ?> <a href="display-datas.php?page=<?php  echo  $b; ?>" style="text-decoration:none"><?php echo $b." "; ?></a><?php
     }
     ?>
 
