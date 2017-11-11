@@ -56,12 +56,22 @@ Sort by:
 </div>
 <!--download the table as PDF -->
 <div align="right">
-<button   class="btn btn-default" href="#" onclick="HTMLtoPDF()">Download PDF</button>
+<?php 
+if (isset($_GET['searchBy'])) {
+    $csvURL = "./CSV.php?searchBy=".$_GET['searchBy']."&search_query=".$_GET['search_query'];
+}
+else{
+    $csvURL = "./CSV.php?searchBy=title&search_query=";
+}    
+echo "<button class=\"btn btn-default\"><a href=\""; echo $csvURL; echo "\">Download CSV</a></button> &nbsp;"; 
+?>
+<button class="btn btn-default" href="#" onclick="HTMLtoPDF()">Download PDF</button>
 </form></div></div>
 
 <hr>
 
-<body style="background: rgb(153, 204, 255)">
+<body style=" height:100%; background: linear-gradient(0deg, rgb(153, 204, 255), rgb(208, 230, 255)) no-repeat;">
+
 <?php
     // connect to database but need limit $page1,10
     $connect = mysqli_connect("localhost", "root", "") or die(mysqli_connect_error());
@@ -76,8 +86,8 @@ Sort by:
         $page1=($page*10)-10;
     }
     // base sql query
-    $sql = "SELECT date, title, source ";
-   
+    $sql = "SELECT date, title, source, idArticle ";
+    //paging the table
    
     // build sql query based on search criteria
     if(isset($_GET['search_query']))
@@ -90,7 +100,7 @@ Sort by:
             else if($_GET['searchBy'] == 'source')
             { $sql .= "FROM article WHERE source LIKE '%{$search_query}%'"; }
             else if($_GET['searchBy'] == 'keyword')
-            { $sql = "SELECT DISTINCT title, source, date FROM article NATURAL JOIN article_keywords NATURAL JOIN keyword_instances WHERE keyword LIKE '%{$search_query}%' "; }
+            { $sql = "SELECT DISTINCT title, source, idArticle, date FROM article NATURAL JOIN article_keywords NATURAL JOIN keyword_instances WHERE keyword LIKE '%{$search_query}%' "; }
             else
             { $sql .= "FROM article "; }
         }
@@ -131,6 +141,29 @@ a:active {
 color: blue;
 }
 </style>
+
+
+<?php 
+$color = "#B2E4FF";
+while ($row = mysqli_fetch_array($query)) { 
+if ($color == "#B2E4FF"){
+echo "<tr bgcolor = \"#B2E4FF\" class='clickable-row' href='./display_article.php?idArticle="; echo $row['idArticle']; echo"'>";
+echo "<td><button class=\"btn btn-link\" style=\"color:black\"><a href=\"./display_article.php?idArticle="; echo $row['idArticle']; echo "\" style=\"color:black\">"; echo $row['title']; echo "</a></button></td>";
+echo "<td>&nbsp"; echo $row['source']; echo"</td>";
+echo "<td>"; echo $row['date']; echo "</td>";
+echo "</tr>"; 
+$color = "#75CEFF"; }
+else {
+echo "<tr bgcolor = \"#FFFFFF\" class='clickable-row' data-href='./display_article.php?idArticle="; echo $row['idArticle']; echo"'>";
+echo "<td><button class=\"btn btn-link\" style=\"color:black\"><a href=\"./display_article.php?idArticle="; echo $row['idArticle']; echo "\" style=\"color:black\">"; echo $row['title']; echo "</a></button></td>";
+echo "<td>&nbsp"; echo $row['source']; echo"</td>";
+echo "<td>"; echo $row['date']; echo "</td>";
+echo "</tr>"; 
+$color = "#B2E4FF"; }
+
+ }
+?>
+
 <?php
   
     while($row = mysqli_fetch_array($query))
@@ -138,7 +171,7 @@ color: blue;
         $title = $row['title'];
         $source = $row['source'];
         $date = $row['date'];
-        echo "<tr> <td><button class=\"btn btn-link\">$title</button></td> <td>$source</td> <td>$date</td> </tr>";
+        echo "<tr> <td><a>$title</a></td> <td>$source</td> <td>$date</td> </tr>";
     }
     
 
@@ -146,13 +179,13 @@ color: blue;
 </table>
 
 <?php
-    $res1 = mysqli_query($connect, "select * from article   ");
+    $res1 = mysqli_query($connect, $sql);
 $cou=mysqli_num_rows($query);
     $a=$cou/10;
 $a=ceil($a);
     for($b=1; $b<=$a;$b++)
     {
-        ?><ul class="pagination"><li><a  href="display-datas.php?page=<?php  echo  $b; ?>"  style="text-decoration:none"><?php echo $b." "; ?></a></li></ul><?php
+        ?> <a href="display-datas.php?page=<?php  echo  $b; ?>" style="text-decoration:none"><?php echo $b." "; ?></a><?php
     }
     ?>
 
