@@ -38,7 +38,7 @@
 <div class='col-xs-12 col-sm-12 col-md-5 col-lg-8 center-block'>
 </div>
 <div class='navbar-form' align="center"><form action='' method='GET'>
-Sort by:
+Search by:
 <input type='radio' name='searchBy' value='title' checked='checked'>Title
 <input type='radio' name='searchBy' value='source'>Source
 <input type='radio' name='searchBy' value='keyword'>Keyword<br>
