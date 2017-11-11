@@ -32,16 +32,31 @@
 <hr>
 </div>
 <!-- search bar + options -->
-<div class='searchBar' align="center"><form action='' method='GET'>
+<div class='container'>
+<div class='content-wrapper'>
+<div class='row'>
+<div class='col-xs-12 col-sm-12 col-md-5 col-lg-8 center-block'>
+</div>
+<div class='navbar-form' align="center"><form action='' method='GET'>
 Sort by:
 <input type='radio' name='searchBy' value='title' checked='checked'>Title
 <input type='radio' name='searchBy' value='source'>Source
 <input type='radio' name='searchBy' value='keyword'>Keyword<br>
-<input type='search' name='search_query' placeholder='Type search query here...'>
-<button type='submit'>Search</button>
+<span class="input-group-btn">
+<input class='form-control' type="text" name='search_query' placeholder='Type search query here...'/>
+
+<button type='submit' class='btn btn-default'>
+<span class='glyphicon glyphicon-search'></span>
+
+</button>
+</span>
+</div>
+</div>
+</div>
+</div>
 <!--download the table as PDF -->
 <div align="right">
-<button   href="#" onclick="HTMLtoPDF()">Download PDF</button>
+<button   class="btn btn-default" href="#" onclick="HTMLtoPDF()">Download PDF</button>
 </form></div></div>
 
 <hr>
@@ -62,7 +77,7 @@ Sort by:
     }
     // base sql query
     $sql = "SELECT date, title, source ";
-    //paging the table
+   
    
     // build sql query based on search criteria
     if(isset($_GET['search_query']))
@@ -89,8 +104,8 @@ Sort by:
 
 <!-- display query results as table -->
 
-<div id="HTMLtoPDF">
-<table   id="myTable" style="background-color: white" width="1000" class="tablesorter" border="1" align="center">
+<div id="HTMLtoPDF" class="col-sm-12">
+<table   id="myTable" style="background-color: white" width="1000" class="table table-bordered dataTable no-footer" border="1" align="center">
 <thead>
 <tr align="center">
 <td><strong>Title</strong></td>
@@ -123,7 +138,7 @@ color: blue;
         $title = $row['title'];
         $source = $row['source'];
         $date = $row['date'];
-        echo "<tr> <td><a>$title</a></td> <td>$source</td> <td>$date</td> </tr>";
+        echo "<tr> <td><button class=\"btn btn-link\">$title</button></td> <td>$source</td> <td>$date</td> </tr>";
     }
     
 
@@ -131,13 +146,13 @@ color: blue;
 </table>
 
 <?php
-    $res1 = mysqli_query($connect, $sql);
+    $res1 = mysqli_query($connect, "select * from article   ");
 $cou=mysqli_num_rows($query);
     $a=$cou/10;
 $a=ceil($a);
     for($b=1; $b<=$a;$b++)
     {
-        ?> <a href="display-datas.php?page=<?php  echo  $b; ?>" style="text-decoration:none"><?php echo $b." "; ?></a><?php
+        ?><ul class="pagination"><li><a  href="display-datas.php?page=<?php  echo  $b; ?>"  style="text-decoration:none"><?php echo $b." "; ?></a></li></ul><?php
     }
     ?>
 
