@@ -1,37 +1,37 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-<title>Bootstrap 101 Template</title>
 
-<!-- Bootstrap -->
-<link href="css/bootstrap.min.css" rel="stylesheet">
-<link href="css/dataTables.bootstrap.min.css" rel="stylesheet">
-<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" />
-<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-<!--[if lt IE 9]>
+<html>
+<head>
+<title>Search Database</title>
+<meta charset="utf-8">
+
+<!-- Bootstrap stuff -->
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="js/jquery.js"></script>
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-<![endif]-->
+<script src="js/jspdf.js"></script>
+<script src="js/pdfFromHTML.js"></script>
+<script src="js/jquery-latest.js"></script>
+<script src="js/jquery.tablesorter.js"></script>
 </head>
-<body style="background: rgb(153, 204, 255)">
-
-<div class="img_holder" onclick="myfuunc(this);">
-<img class="flagimgs first" src="https://polisci.as.uky.edu/sites/default/files/political-science.png" width=10% height=10%  <h1><font size="5"> College of Arts &amp; Sciences <p>Political Science</font></p></h1>
-
-<p><font size="8">Supreme Court Coverage/Analytics Application</font></p></img>
-
+<!--background -->
+<div style="background: white">
+<img class="flagimgs first" src="CAS.png" width=100% height=10%>
+<img class="flagimgs first" src="PS.png" width=500 height=150 style="background: white">
+<p><font size="8">Supreme Court Coverage/Analytics Application</font></p></img></img>
 
 <hr>
 </div>
-</body>
-</html>
-
-
+<body style=" height:100%; background: linear-gradient(0deg, rgb(153, 204, 255), rgb(255, 255, 255)) no-repeat;">
 <?php
    
     include "search.php";
@@ -51,7 +51,7 @@
     }
     else {
 	   $search_term = $_GET['idArticle'];
-	   $sql = "SELECT date, title, article_text, url FROM article WHERE idArticle='{$search_term}'";
+	   $sql = "SELECT date, source, author, title, article_text, url FROM article WHERE idArticle='{$search_term}'";
     	   //echo $sql;
           
           }
@@ -61,49 +61,37 @@
 <div class='container'>
 <div class='content-wrapper'>
 <div class='row'>
-<div class='col-xs-12 col-sm-12 col-md-8 col-lg-8'>
-</div>
-<div class='col-xs-12 col-sm-12 col-md-5 col-lg-5 center-block'>
+<div class='col-xs-3 col-md-3'>
+<div id="rectangle" style="width:number px; height:number px; background-color:white; border-radius: 25px; padding: 20px; border: 2px solid #000000;">
+<b><big><big><big>Details</big></big></big></b></br></br>
+<b><big>Author</big></b></br>
+<?php ($row = mysqli_fetch_array($query)); echo $row['author']; ?></br></br>
+<b><big>Source</big></b></br>
+<?php echo $row['source']; ?></br></br>
+<b><big>Publication Date</big></b></br>
+<?php echo $row['date']; ?></br></br>
+<b><big><div id="dont-break-out" style="word-break: break-word; word-break: break-all; -ms-word-break: break-all; word-wrap: break-word; overflow-wrap: break-word;">URL</div></big></b>
+<a href="<?php echo $row['url']; ?>"><?php echo substr($row['url'], 0, 30); echo"...";?></a></br></br>
 
-<div class="input-group">
-<div class="input-group-btn search-panel">
-<button type="button" class="btn btn-default data-toggle="dropdown">
-<span id="search_concept">Search By</span> <span class="caret"></span>
-<ul class="dropdown-menu">
-<li><a href="localhost">Title</a></li>
-<li><a href="localhost">Source</a></li>
-<li><a href="">Keyword</a></li>
-</ul>
 
-</button>
 </div>
-<form name="navbar-form" method="POST" action="display_data.php">
-<div class='input-group'>
-<input class='form-control' type="text" name="search_box" value="" placeholder='Search' />
-<span class="input-group-btn">
-<button type='submit' name="search" class='btn btn-default'>
-<span class='glyphicon glyphicon-search'></span>
-</button>
-</span>
 </div>
-  </div>
-</div>
-</form>
-<tr>
-            
-             </thead>
-<?php while ($row = mysqli_fetch_array($query)) { ?>
+<div class='col-xs-9 col-md-9 center-block'>
+
+
+<div id="rectangle" style="width:number px; height:number px; background-color:white; border-radius: 25px; padding: 20px; border: 2px solid #000000;">
   
 
-</br></br><b><big><?php echo $row['title']; ?></b></big></br>
+<b><big><?php echo $row['title']; ?></b></big></br>
 <?php echo $row['date']; ?></br>
-<?php echo $row['article_text']; ?></br>
-
- <?php }?>
+<?php echo nl2br($row['article_text']); ?></br>
 
 </table>
 
 </div>
+</div>
+</div>
+
 <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
              <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
               <script src="js/jquery.js"></script>
@@ -116,6 +104,8 @@
              $('#mydata').DataTable();
              
              </script>
+</br></br></br></br></br></br></br></br></br></br>
+</body>
          
-             </body>
+             
 </html>
