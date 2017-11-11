@@ -27,7 +27,7 @@
 <div style="background: white">
 <img class="flagimgs first" src="CAS.png" width=100% height=10%>
 <img class="flagimgs first" src="PS.png" width=500 height=150 style="background: white">
-<p><font size="8">Supreme Court Coverage/Analytics Application</font></p></img></img>
+<p><font size="8">&nbsp;Supreme Court Coverage/Analytics Application</font></p></img></img>
 
 <hr>
 </div>
@@ -61,12 +61,12 @@ To: <input type="date" name="dateTo" >
 <div align="right">
 <?php 
 if (isset($_GET['searchBy'])) {
-    $csvURL = "./CSV.php?searchBy=".$_GET['searchBy']."&search_query=".$_GET['search_query'];
+    $csvURL = "./CSV.php?searchBy=".$_GET['searchBy']."&search_query=".$_GET['search_query']."&dateFrom=".$_GET['dateFrom']."&dateTo=".$_GET['dateTo'];
 }
 else{
     $csvURL = "./CSV.php?searchBy=title&search_query=";
 }    
-echo "<button class=\"btn btn-default\"><a href=\""; echo $csvURL; echo "\">Download CSV</a></button> &nbsp;"; 
+echo "<button class=\"btn btn-default\"><a style=\"color:black; text-decoration:none\" href=\""; echo $csvURL; echo "\">Download CSV</a></button> &nbsp;"; 
 ?>
 <button class="btn btn-default" href="#" onclick="HTMLtoPDF()">Download PDF</button>
 </form></div></div>
@@ -78,6 +78,7 @@ echo "<button class=\"btn btn-default\"><a href=\""; echo $csvURL; echo "\">Down
 <?php
     // connect to database but need limit $page1,10
     $connect = mysqli_connect("localhost", "root", "") or die(mysqli_connect_error());
+    mysqli_set_charset($connect, "utf8");
     mysqli_select_db($connect, "SupremeCourtApp") or die(mysqli_connect_error());
     $page=(isset($_GET["page"]));
     if($page=="" || $page=="1")
@@ -174,7 +175,6 @@ echo "<td>&nbsp"; echo $row['source']; echo"</td>";
 echo "<td>"; echo $row['date']; echo "</td>";
 echo "</tr>"; 
 $color = "#B2E4FF"; }
-
  }
 ?>
 
@@ -188,7 +188,6 @@ $color = "#B2E4FF"; }
         echo "<tr> <td><a>$title</a></td> <td>$source</td> <td>$date</td> </tr>";
     }
     
-
     ?>
 </table>
 
@@ -214,6 +213,5 @@ $(document).ready(function()
                   $("#myTable").tablesorter( {sortList: [[0,0], [1,0]]} );
                   }
                   );
-
 </script>
 </html>
