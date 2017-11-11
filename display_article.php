@@ -35,6 +35,7 @@
 <?php
    
     include "search.php";
+    mysqli_set_charset($connect, "utf8");
     $search_term = $_GET['idArticle'];
     $sql = "SELECT date, title, source, url FROM article WHERE idArticle='%{$search_term}%'";
     //keep it for keyword
