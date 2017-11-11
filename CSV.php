@@ -1,6 +1,7 @@
 <?php
     // connect to database but need limit $page1,10
     $connect = mysqli_connect("localhost", "root", "") or die(mysqli_connect_error());
+    mysqli_set_charset($connect, "utf8");
     mysqli_select_db($connect, "SupremeCourtApp") or die(mysqli_connect_error());
     $page=(isset($_GET["page"]));
     if($page=="" || $page=="1")
@@ -34,6 +35,17 @@
     else // default search yields all articles
     {
         $sql .= "FROM article ";
+    }
+     if(!empty($_GET['dateFrom']) && !empty($_GET['dateTo']))
+    {
+        if(isset($_GET['search_query']))
+        {
+            $sql .= "AND date BETWEEN '{$_GET['dateFrom']}' AND '{$_GET['dateTo']}'";
+        }
+        else
+        {
+            $sql .= "WHERE date BETWEEN '{$_GET['dateFrom']}' AND '{$_GET['dateTo']}'";
+        }
     }
     $query = mysqli_query($connect, $sql) or die(mysqli_connect_error()); // execute query
     ?>
