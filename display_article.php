@@ -34,8 +34,9 @@
 <body style=" height:100%; background: linear-gradient(0deg, rgb(153, 204, 255), rgb(255, 255, 255)) no-repeat;">
 <?php
    
-    include "search.php";
+    $connect = mysqli_connect("localhost", "root", "") or die(mysqli_connect_error());
     mysqli_set_charset($connect, "utf8");
+    mysqli_select_db($connect, "SupremeCourtApp") or die(mysqli_connect_error());
     $search_term = $_GET['idArticle'];
     $sql = "SELECT date, title, source, url FROM article WHERE idArticle='%{$search_term}%'";
     //keep it for keyword
@@ -73,6 +74,8 @@
 <?php echo $row['date']; ?></br></br>
 <b><big><div id="dont-break-out" style="word-break: break-word; word-break: break-all; -ms-word-break: break-all; word-wrap: break-word; overflow-wrap: break-word;">URL</div></big></b>
 <a href="<?php echo $row['url']; ?>"><?php echo substr($row['url'], 0, 30); echo"...";?></a></br></br>
+<b><big>Sentiment Score</big></b></br>
+<b><big>Magnitude</big></b></br>
 
 
 </div>
