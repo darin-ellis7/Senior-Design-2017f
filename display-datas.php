@@ -25,34 +25,54 @@
 </head>
 <!--background -->
 <div style="background: white">
-    <img class="flagimgs first" src="CAS.png" width=100% height=10%>
-    <img class="flagimgs first" src="PS.png" width=500 height=150 style="background: white">
-    <p><font size="8">&nbsp;Supreme Court Coverage/Analytics Application</font></p></img></img>
-    <hr>
+<img class="flagimgs first" src="CAS.png" width=100% height=10%>
+<img class="flagimgs first" src="PS.png" width=500 height=150 style="background: white">
+<p><font size="8">&nbsp;Supreme Court Coverage/Analytics Application</font></p></img></img>
+
+<hr>
 </div>
 <!-- search bar + options -->
 <div class='container'>
-    <div class='content-wrapper'>
-        <div class='row'>
-            <div class='col-xs-12 col-sm-12 col-md-5 col-lg-8 center-block'>
-            </div>
-            <div class='navbar-form' align="center">
-                <form action='' method='GET'>
-                    Search by:
-                    <input type='radio' name='searchBy' value='title' checked='checked'>Title
-                    <input type='radio' name='searchBy' value='source'>Source
-                    <input type='radio' name='searchBy' value='keyword'>Keyword<br>
-                    <span class="input-group-btn">
-                        <input class='form-control' type="text" name='search_query' placeholder='Type search query here...'/>
+<div class='content-wrapper'>
+<div class='row'>
+<div class='col-xs-12 col-sm-12 col-md-5 col-lg-8 center-block'>
+</div>
+<div class='navbar-form' align="center"><form action='' method='GET'>
 
-                        <button type='submit' class='btn btn-default'>
-                            <span class='glyphicon glyphicon-search'></span>
+Search by:
+<?php
+    // sets the checked criteria on the results of a search based on what the user selected before searching
+    $values = ['title','source','keyword'];
+    foreach($values as $v)
+    {
+        echo "<input type='radio' name='searchBy' value=$v";
+       
+            if((isset($_GET['searchBy']) && $_GET['searchBy'] == $v) || (!isset($_GET['searchBy']) && $v == 'title'))
+            {
+                echo " checked = 'checked'";
+            }
+        
+        
+        echo "> " . ucfirst($v) . " ";   
+    }
 
-                        </button>
-            </span>
-        <br>
-From: <input type="date" name="dateFrom" >
-To: <input type="date" name="dateTo" >
+?>
+
+<br>
+<br>
+
+<!-- php code within these input tags are to remember user input after search is done -->
+<span class="input-group-btn">
+<input class='form-control' type="text" name="search_query" style="width: 430px !important;" placeholder='Type search query here... (leave empty to see all)' <?php if(isset($_GET['search_query'])) echo " value='{$_GET['search_query']}'"; ?>          />
+
+<button type='submit' class='btn btn-default'>
+<span class='glyphicon glyphicon-search'></span>
+
+</button>
+</span>
+<br>
+From: <input type="date" name="dateFrom" <?php if(!empty($_GET['dateFrom']) && !empty($_GET['dateTo'])) { echo " value = '{$_GET['dateFrom']}'"; } ?> > 
+To: <input type="date" name="dateTo" <?php if(!empty($_GET['dateFrom']) && !empty($_GET['dateTo'])) { echo " value = '{$_GET['dateTo']}'";} ?> > 
 </div>
 </div>
 </div>
@@ -113,7 +133,9 @@ echo "<button class=\"btn btn-default\"><a style=\"color:black; text-decoration:
     {
         $sql .= "FROM article ";
     }
-     if(!empty($_GET['dateFrom']) && !empty($_GET['dateTo']))
+
+    // date range search
+    if(!empty($_GET['dateFrom']) && !empty($_GET['dateTo']))
     {
         if(isset($_GET['search_query']))
         {
@@ -124,11 +146,12 @@ echo "<button class=\"btn btn-default\"><a style=\"color:black; text-decoration:
             $sql .= "WHERE date BETWEEN '{$_GET['dateFrom']}' AND '{$_GET['dateTo']}'";
         }
     }
+
+    $sql .= " ORDER BY date DESC";
     $query = mysqli_query($connect, $sql) or die(mysqli_connect_error()); // execute query
     ?>
 
 <!-- display query results as table -->
-
 <div id="HTMLtoPDF" class="col-sm-12">
 <table   id="myTable" style="background-color: white" width="1000" class="table table-bordered dataTable no-footer" border="1" align="center">
 <thead>

@@ -106,6 +106,7 @@ def download_image(url,idImage):
         im.convert('RGB').save(full,"JPEG",quality=85,optimize=True) # then convert the image to an actual jpg
         return filename
     except (urllib.error.HTTPError, OSError) as error: # check if any errors occur (problem retrieving image or OSError) - the OSError has only occurred once, doesn't seem to be frequent, not sure why it happened but it's handled
+        print(error)
         return None
     
 # uses Google Cloud Vision API to detect entities in the image
