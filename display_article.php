@@ -34,7 +34,7 @@
          mysqli_set_charset($connect, "utf8");
          mysqli_select_db($connect, "SupremeCourtApp") or die(mysqli_connect_error());
          $search_term = $_GET['idArticle'];
-         $sql = "SELECT date, title, source, url FROM article WHERE idArticle='%{$search_term}%'";
+         $sql = "SELECT date, title, source, url, FROM article WHERE idArticle='%{$search_term}%'";
          //keep it for keyword
          //$keyword = "SELECT title,source, date FROM article NATURAL JOIN article_keywords NATURAL JOIN keyword_instances";
          
@@ -49,7 +49,7 @@
          }
          else {
             $search_term = $_GET['idArticle'];
-            $sql = "SELECT date, source, author, title, article_text, url FROM article WHERE idArticle='{$search_term}'";
+            $sql = "SELECT date, source, author, title, article_text, url,score,magnitude FROM article WHERE idArticle='{$search_term}'";
                 //echo $sql;
             $keywordSQL = "SELECT keyword FROM article_keywords WHERE idKey IN (SELECT idKey FROM keyword_instances WHERE idArticle = '{$search_term}')";
 
@@ -86,8 +86,8 @@
                   </big>
                </b>
                <a href="<?php echo $row['url']; ?>"><?php echo substr($row['url'], 0, 30); echo"...";?></a></br></br>
-               <b><big>Sentiment Score</big></b></br>
-               <b><big>Magnitude</big></b></br>
+               <b><big>Sentiment Score: <?php echo $row['score']; ?></big></b></br> 
+               <b><big>Magnitude: <?php echo $row['magnitude']; ?></big></b></br>
             </div>
         </br>
             <div>
@@ -141,14 +141,14 @@
                           $SQL = "SELECT entity from image_entities WHERE idEntity IN ('{$ID}')";
                           $sqlQ = mysqli_query($connect, $SQL) or die(mysqli_connect_error());
                           $sqlRow = mysqli_fetch_array($sqlQ);
-                          echo "Entity: "; echo $sqlRow['entity']; echo "<div style=\"float:right;\"> Score: "; echo $row['score'];
+                          echo $sqlRow['entity']; echo "<div style=\"float:right;\"> Score: "; echo $row['score'];
                               echo "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div></br>";
                           while ($row = mysqli_fetch_array($entities)){
                               $ID = $row['idEntity'];
                               $SQL = "SELECT entity from image_entities WHERE idEntity IN ('{$ID}')";
                               $sqlQ = mysqli_query($connect, $SQL) or die(mysqli_connect_error());
                               $sqlRow = mysqli_fetch_array($sqlQ);
-                              echo "Entity: "; echo $sqlRow['entity']; echo "<div style=\"float:right;\"> Score: "; echo $row['score'];
+                              echo $sqlRow['entity']; echo "<div style=\"float:right;\"> Score: "; echo $row['score'];
                               echo "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div></br>";
                           }
                        }
