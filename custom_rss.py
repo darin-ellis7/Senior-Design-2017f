@@ -240,10 +240,10 @@ def relevant(keywords, title,source):
     title = title.lower()
     
     # these are sources that seem to pop up often about the SC in India - kill anything from these websites
-    avoidedSources = ['indiatimes','thehindu']
+    avoidedSources = ['indiatimes','thehindu','liberianobserver']
     
     # foreign supreme courts that appear most frequently
-    foreignCountries = ['india','kenya','canada']
+    foreignCountries = ['india','kenya','canada','spain']
     
     # use these lists of states & abbreviations to filter out state supreme courts
     states = ["Alabama","Alaska","Arizona","Arkansas","California","Colorado",
@@ -262,7 +262,7 @@ def relevant(keywords, title,source):
           "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"]
     
     # these are giveaways that an article is relevant
-    if 'us supreme court' in title or 'u.s. supreme court' in title:
+    if 'us supreme court' in title or 'u.s. supreme court' in title or 'scotus' in title:
         return True
     
     # article needs supreme and court as keywords
