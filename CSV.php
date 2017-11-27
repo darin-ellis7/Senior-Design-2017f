@@ -13,7 +13,7 @@
         $page1=($page*10)-10;
     }
     // base sql query
-    $sql = "SELECT date, title, source, idArticle ";
+    $sql = "SELECT date, title, source, idArticle, score, magnitude ";
     //paging the table
    
     // build sql query based on search criteria
@@ -27,7 +27,7 @@
             else if($_GET['searchBy'] == 'source')
             { $sql .= "FROM article WHERE source LIKE '%{$search_query}%'"; }
             else if($_GET['searchBy'] == 'keyword')
-            { $sql = "SELECT DISTINCT title, source, idArticle, date FROM article NATURAL JOIN article_keywords NATURAL JOIN keyword_instances WHERE keyword LIKE '%{$search_query}%' "; }
+            { $sql = "SELECT DISTINCT title, source, idArticle, date, score, magnitude FROM article NATURAL JOIN article_keywords NATURAL JOIN keyword_instances WHERE keyword LIKE '%{$search_query}%' "; }
             else
             { $sql .= "FROM article "; }
         }
@@ -36,17 +36,22 @@
     {
         $sql .= "FROM article ";
     }
-     if(!empty($_GET['dateFrom']) && !empty($_GET['dateTo']))
+
+    // date range search
+    if(!empty($_GET['dateFrom']) && !empty($_GET['dateTo']))
     {
+        $dateFrom = date("Y-m-d",strtotime($_GET['dateFrom']));
+        $dateTo = date("Y-m-d",strtotime($_GET['dateTo']));
         if(isset($_GET['search_query']))
         {
-            $sql .= "AND date BETWEEN '{$_GET['dateFrom']}' AND '{$_GET['dateTo']}'";
+            $sql .= "AND date BETWEEN '$dateFrom' AND '$dateTo'";
         }
         else
         {
-            $sql .= "WHERE date BETWEEN '{$_GET['dateFrom']}' AND '{$_GET['dateTo']}'";
+            $sql .= "WHERE date BETWEEN '$dateFrom' AND '$dateTo'";
         }
     }
+    
     $query = mysqli_query($connect, $sql) or die(mysqli_connect_error()); // execute query
     ?>
 
@@ -58,10 +63,10 @@ $fp = fopen('php://output', 'w');
         header('Content-Disposition: attachment; filename="export.csv"');
         header('Pragma: no-cache');
         header('Expires: 0');
-        $arrName = array("Date", "Source", "Title", "ID");
+        $arrName = array("ID", "Date", "Source", "Title","Sentiment Score","Sentiment Magnitude");
         fputcsv($fp, $arrName);
         while ($row = mysqli_fetch_array($query)) { 
-		 $arr = array($row['date'], $row['source'], $row['title'], $row['idArticle']);
+		 $arr = array($row['idArticle'],$row['date'], $row['source'], $row['title'], $row['score'],$row['magnitude']);
             fputcsv($fp, $arr);        }
     }
 ?>

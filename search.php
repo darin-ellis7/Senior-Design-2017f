@@ -17,17 +17,24 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-<script src="js/jspdf.js"></script>
-<script src="js/pdfFromHTML.js"></script>
 
 <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.16/css/jquery.dataTables.css">
 <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.16/js/jquery.dataTables.js"></script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/css/bootstrap-datepicker.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/js/bootstrap-datepicker.min.js"></script>
 <script>
     $(document).ready(function() {
                     $("#results-table").DataTable({"searching":false, "order": [[2,"desc"]]});
-                  } );
+                    $('.datebox').datepicker({clearBtn: true });
+                  });
+
+    
+ 
+
 </script>
 </head>
+
 <!--background -->
 <div style="background: white">
 <img class="flagimgs first" src="CAS.png" width=100% height=10%>
@@ -76,13 +83,17 @@ Search by:
 </button>
 </span>
 <br>
-From: <input type="date" name="dateFrom" <?php if(!empty($_GET['dateFrom']) && !empty($_GET['dateTo'])) { echo " value = '{$_GET['dateFrom']}'"; } ?> > 
-To: <input type="date" name="dateTo" <?php if(!empty($_GET['dateFrom']) && !empty($_GET['dateTo'])) { echo " value = '{$_GET['dateTo']}'";} ?> > 
+
+From: <input data-provide="datepicker" class="datebox" type="text" name="dateFrom" <?php if(!empty($_GET['dateFrom']) && !empty($_GET['dateTo'])) { echo " value = '{$_GET['dateFrom']}'"; } ?> > 
+
+
+To: <input data-provide="datepicker" class="datebox" type="text" name="dateTo" <?php if(!empty($_GET['dateFrom']) && !empty($_GET['dateTo'])) { echo " value = '{$_GET['dateTo']}'";} ?> > 
 </div>
 </div>
 </div>
 </div>
-<!--download the table as PDF -->
+
+<!--download button -->
 <div align="right">
 <?php 
 if (isset($_GET['searchBy'])) {
@@ -93,7 +104,6 @@ else{
 }    
 echo "<button class=\"btn btn-default\"><a style=\"color:black; text-decoration:none\" href=\""; echo $csvURL; echo "\">Download CSV</a></button> &nbsp;"; 
 ?>
-<button class="btn btn-default" href="#" onclick="HTMLtoPDF()">Download PDF</button>
 </form></div></div>
 
 <hr>
@@ -142,13 +152,15 @@ echo "<button class=\"btn btn-default\"><a style=\"color:black; text-decoration:
     // date range search
     if(!empty($_GET['dateFrom']) && !empty($_GET['dateTo']))
     {
+    	$dateFrom = date("Y-m-d",strtotime($_GET['dateFrom']));
+    	$dateTo = date("Y-m-d",strtotime($_GET['dateTo']));
         if(isset($_GET['search_query']))
         {
-            $sql .= "AND date BETWEEN '{$_GET['dateFrom']}' AND '{$_GET['dateTo']}'";
+            $sql .= "AND date BETWEEN '$dateFrom' AND '$dateTo'";
         }
         else
         {
-            $sql .= "WHERE date BETWEEN '{$_GET['dateFrom']}' AND '{$_GET['dateTo']}'";
+            $sql .= "WHERE date BETWEEN '$dateFrom' AND '$dateTo'";
         }
     }
 
