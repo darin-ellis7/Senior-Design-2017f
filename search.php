@@ -130,11 +130,11 @@ echo "<button class=\"btn btn-default\"><a style=\"color:black; text-decoration:
             $search_query = mysqli_real_escape_string($connect, $_GET['search_query']);
             if($_GET['searchBy'] == 'title') // title search
             { 
-                $sql .= "WHERE title LIKE '%$search_query%'"; 
+                $sql .= "WHERE title LIKE '%$search_query%' "; 
             }
             else if($_GET['searchBy'] == 'source') // source search
             { 
-                $sql .= "WHERE source LIKE '%$search_query%'"; 
+                $sql .= "WHERE source LIKE '%$search_query%' "; 
             }
             else if($_GET['searchBy'] == 'keyword') // keyword search
             { 
@@ -152,15 +152,15 @@ echo "<button class=\"btn btn-default\"><a style=\"color:black; text-decoration:
     	$dateTo = date("Y-m-d",strtotime($_GET['dateTo']));
         if(isset($_GET['search_query']))
         {
-            $sql .= "AND date BETWEEN '$dateFrom' AND '$dateTo'";
+            $sql .= "AND date BETWEEN '$dateFrom' AND '$dateTo' ";
         }
         else
         {
-            $sql .= "WHERE date BETWEEN '$dateFrom' AND '$dateTo'";
+            $sql .= "WHERE date BETWEEN '$dateFrom' AND '$dateTo' ";
         }
     }
 
-    $sql .= " ORDER BY date DESC";
+    $sql .= "ORDER BY date DESC";
     $query = mysqli_query($connect, $sql) or die(mysqli_connect_error()); // execute query
 ?>
 
