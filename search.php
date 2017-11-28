@@ -96,7 +96,8 @@ To: <input data-provide="datepicker" class="datebox" type="text" name="dateTo" <
 <!--download button -->
 <div align="right">
 <?php 
-if (isset($_GET['searchBy'])) {
+if (isset($_GET['searchBy'])) 
+{
     $csvURL = "./CSV.php?searchBy=".$_GET['searchBy']."&search_query=".$_GET['search_query']."&dateFrom=".$_GET['dateFrom']."&dateTo=".$_GET['dateTo'];
 }
 else{
@@ -111,22 +112,15 @@ echo "<button class=\"btn btn-default\"><a style=\"color:black; text-decoration:
 <body style=" height:100%; background: linear-gradient(0deg, rgb(153, 204, 255), rgb(208, 230, 255)) no-repeat;">
 
 <?php
-    // connect to database but need limit $page1,10
+    // connect to database (or not)
     $connect = mysqli_connect("localhost", "root", "") or die(mysqli_connect_error());
     mysqli_set_charset($connect, "utf8");
     mysqli_select_db($connect, "SupremeCourtApp") or die(mysqli_connect_error());
-    $page=(isset($_GET["page"]));
-    if($page=="" || $page=="1")
-    {
-        $page1=0;
-    }
-    else
-    {
-        $page1=($page*10)-10;
-    }
+    
+
     // base sql query
-    $sql = "SELECT date, title, source, idArticle ";
-    //paging the table
+    // default search includes entire database
+    $sql = "SELECT date, title, source, idArticle FROM article ";
    
     // build sql query based on search criteria
     if(isset($_GET['search_query']))
@@ -134,24 +128,26 @@ echo "<button class=\"btn btn-default\"><a style=\"color:black; text-decoration:
         if(isset($_GET['searchBy']))
         {
             $search_query = mysqli_real_escape_string($connect, $_GET['search_query']);
-            if($_GET['searchBy'] == 'title')
-            { $sql .= "FROM article WHERE title LIKE '%{$search_query}%'"; }
-            else if($_GET['searchBy'] == 'source')
-            { $sql .= "FROM article WHERE source LIKE '%{$search_query}%'"; }
-            else if($_GET['searchBy'] == 'keyword')
-            { $sql = "SELECT DISTINCT title, source, idArticle, date FROM article NATURAL JOIN article_keywords NATURAL JOIN keyword_instances WHERE keyword LIKE '%{$search_query}%' "; }
-            else
-            { $sql .= "FROM article "; }
+            if($_GET['searchBy'] == 'title') // title search
+            { 
+                $sql .= "WHERE title LIKE '%$search_query%'"; 
+            }
+            else if($_GET['searchBy'] == 'source') // source search
+            { 
+                $sql .= "WHERE source LIKE '%$search_query%'"; 
+            }
+            else if($_GET['searchBy'] == 'keyword') // keyword search
+            { 
+                // keywords require special query
+                $sql = "SELECT DISTINCT title, source, idArticle, date FROM article NATURAL JOIN article_keywords NATURAL JOIN keyword_instances WHERE keyword LIKE '%$search_query%' "; 
+            }
         }
     }
-    else // default search yields all articles
-    {
-        $sql .= "FROM article ";
-    }
 
-    // date range search
+    // date range search - if no dates provided, ignore
     if(!empty($_GET['dateFrom']) && !empty($_GET['dateTo']))
     {
+        // convert date input to Y-m-d format - this is because the bootstrap datepicker sends dates in Y/m/d while SQL only accepts as Y-m-d
     	$dateFrom = date("Y-m-d",strtotime($_GET['dateFrom']));
     	$dateTo = date("Y-m-d",strtotime($_GET['dateTo']));
         if(isset($_GET['search_query']))
@@ -166,7 +162,7 @@ echo "<button class=\"btn btn-default\"><a style=\"color:black; text-decoration:
 
     $sql .= " ORDER BY date DESC";
     $query = mysqli_query($connect, $sql) or die(mysqli_connect_error()); // execute query
-    ?>
+?>
 
 <!-- display query results as table -->
 <div id="HTMLtoPDF" class="col-sm-12">
