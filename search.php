@@ -28,10 +28,6 @@
                     $("#results-table").DataTable({"searching":false, "order": [[2,"desc"]]});
                     $('.datebox').datepicker({clearBtn: true });
                   });
-
-    
- 
-
 </script>
 </head>
 
@@ -98,12 +94,12 @@ To: <input data-provide="datepicker" class="datebox" type="text" name="dateTo" <
 <?php 
 if (isset($_GET['searchBy'])) 
 {
-    $csvURL = "./CSV.php?searchBy=".$_GET['searchBy']."&search_query=".$_GET['search_query']."&dateFrom=".$_GET['dateFrom']."&dateTo=".$_GET['dateTo'];
+    $downloadURL = "./download.php?searchBy=".$_GET['searchBy']."&search_query=".$_GET['search_query']."&dateFrom=".$_GET['dateFrom']."&dateTo=".$_GET['dateTo'];
 }
 else{
-    $csvURL = "./CSV.php?searchBy=title&search_query=";
+    $downloadURL = "./download.php?searchBy=title&search_query=";
 }    
-echo "<button class=\"btn btn-default\"><a style=\"color:black; text-decoration:none\" href=\""; echo $csvURL; echo "\">Download CSV</a></button> &nbsp;"; 
+echo "<button class=\"btn btn-default\"><a style=\"color:black; text-decoration:none\" href=\""; echo $downloadURL; echo "\">Download Results</a></button> &nbsp;"; 
 ?>
 </form></div></div>
 
@@ -167,63 +163,24 @@ echo "<button class=\"btn btn-default\"><a style=\"color:black; text-decoration:
 <!-- display query results as table -->
 <div id="HTMLtoPDF" class="col-sm-12">
 <table   id="results-table" style="background-color: white" width="90%" class="stripe hover"  align="center">
-<thead>
-<tr align="center">
-<td><strong>Title</strong></td>
-<td><strong>Source</strong></td>
-<td><strong>Date</strong></td>
-</tr>
-</thead>
-<style>
-a {
-color: black;
-}
-a:visited {
-color: black;
-    background-color: transparent;
-    text-decoration: none;
-}
-a:hover {
-color: black;
-    background-color: transparent;
-    text-decoration: underline;
-}
-a:active {
-color: blue;
-}
-</style>
+    <thead>
+        <tr align="center">
+        <td><strong>Title</strong></td>
+        <td><strong>Source</strong></td>
+        <td><strong>Date</strong></td>
+        </tr>
+    </thead>
 
-
-<?php 
-$color = "#B2E4FF";
-while ($row = mysqli_fetch_array($query)) { 
-if ($color == "#B2E4FF"){
-echo "<tr bgcolor = \"#B2E4FF\" class='clickable-row' href='./display_article.php?idArticle="; echo $row['idArticle']; echo"'>";
-echo "<td><button class=\"btn btn-link\" style=\"color:black\"><a href=\"./display_article.php?idArticle="; echo $row['idArticle']; echo "\" style=\"color:black\">"; echo $row['title']; echo "</a></button></td>";
-echo "<td>&nbsp"; echo $row['source']; echo"</td>";
-echo "<td>"; echo $row['date']; echo "</td>";
-echo "</tr>"; 
-$color = "#75CEFF"; }
-else {
-echo "<tr bgcolor = \"#FFFFFF\" class='clickable-row' data-href='./display_article.php?idArticle="; echo $row['idArticle']; echo"'>";
-echo "<td><button class=\"btn btn-link\" style=\"color:black\"><a href=\"./display_article.php?idArticle="; echo $row['idArticle']; echo "\" style=\"color:black\">"; echo $row['title']; echo "</a></button></td>";
-echo "<td>&nbsp"; echo $row['source']; echo"</td>";
-echo "<td>"; echo $row['date']; echo "</td>";
-echo "</tr>"; 
-$color = "#B2E4FF"; }
- }
-?>
-
-<?php
-  
-    while($row = mysqli_fetch_array($query))
-    {
-        $title = $row['title'];
-        $source = $row['source'];
-        $date = $row['date'];
-        echo "<tr> <td><a>$title</a></td> <td>$source</td> <td>$date</td> </tr>";
-    }
-    
+    <?php 
+        // build search results table
+        while ($row = mysqli_fetch_array($query)) 
+        { 
+            echo "<tr class='clickable-row' href='./display_article.php?idArticle="; echo $row['idArticle']; echo"'>";
+                echo "<td><button class=\"btn btn-link\" style=\"color:black\"><a href=\"./display_article.php?idArticle="; echo $row['idArticle']; echo "\" style=\"color:black\">"; echo $row['title']; echo "</a></button></td>";
+                echo "<td>&nbsp"; echo $row['source']; echo"</td>";
+                echo "<td>"; echo $row['date']; echo "</td>";
+            echo "</tr>"; 
+        }
     ?>
 </table>
 
