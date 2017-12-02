@@ -30,6 +30,26 @@
                 // keywords require special query
                 $sql = "SELECT DISTINCT title, date, source, article.idArticle, article.score, magnitude, entity, article_text, MAX(entity_instances.score) FROM (article NATURAL JOIN article_keywords NATURAL JOIN keyword_instances) LEFT JOIN (image NATURAL JOIN image_entities NATURAL JOIN entity_instances) ON article.idArticle = image.idArticle WHERE keyword LIKE '%$search_query%' ";
             }
+
+            // if source filter has been applied, limit the sources to what has been checked
+            if(isset($_GET['sourcebox']))
+            {
+            
+                $sourceFilter_str = "AND source in ("; 
+                foreach($_GET['sourcebox'] as $source)
+                {
+
+                    $sourceFilter_str .= "'" . $source . "'";
+                    if($source != end($_GET['sourcebox']))
+                    {
+                        $sourceFilter_str .= ",";
+                    }
+                }
+
+                $sourceFilter_str .= ") ";
+
+                $sql .= $sourceFilter_str;    
+            }
         }
     }
 
@@ -47,6 +67,28 @@
         {
             $sql .= "WHERE date BETWEEN '$dateFrom' AND '$dateTo' ";
         }
+    }
+
+    if( !isset($_GET['searchBy']) && !isset($_GET['search_query']) && !isset($_GET['dateFrom']) && !isset($_GET['dateTo']) )
+    {
+        if(isset($_GET['sourcebox']))
+            {
+            
+                $sourceFilter_str = "WHERE source in ("; 
+                foreach($_GET['sourcebox'] as $source)
+                {
+
+                    $sourceFilter_str .= "'" . $source . "'";
+                    if($source != end($_GET['sourcebox']))
+                    {
+                        $sourceFilter_str .= ",";
+                    }
+                }
+
+                $sourceFilter_str .= ") ";
+
+                $sql .= $sourceFilter_str;    
+            }
     }
 
     $sql .= "GROUP BY article.idArticle"; // finish query string

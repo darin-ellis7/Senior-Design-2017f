@@ -97,7 +97,15 @@
                 else
                 {
                     $downloadURL = "./download.php?searchBy=title&search_query=";
-                }    
+                }
+
+                if(isset($_GET['sourcebox']))
+                {
+                    foreach($_GET['sourcebox'] as $source)
+                    {
+                        $downloadURL .= "&sourcebox[]=" . $source;
+                    }
+                }   
                 echo "<button class=\"btn btn-default\"><a style=\"color:black; text-decoration:none\" href=\""; echo $downloadURL; echo "\">Download Results</a></button> &nbsp;"; 
             ?>
         </div>
@@ -105,6 +113,10 @@
         <hr>
 
         <?php
+
+            // appends the filters to the search SQL query - "initial" mode parameter is if no search settings have been set (when initial page loads); "search_set" is after some settings have been set
+            // honestly the code can be refactored to do this in a nicer way but we're out of time
+
             // connect to database (or not)
             $connect = mysqli_connect("localhost", "root", "") or die(mysqli_connect_error());
             mysqli_set_charset($connect, "utf8");
@@ -145,7 +157,8 @@
                     // if source filter has been applied, limit the sources to what has been checked
                     if(isset($_GET['sourcebox']))
                     {
-                        $sourceFilter_str = "AND source in (";
+                    
+                        $sourceFilter_str = "AND source in ("; 
                         foreach($_GET['sourcebox'] as $source)
                         {
 
@@ -155,10 +168,13 @@
                                 $sourceFilter_str .= ",";
                             }
                         }
+
                         $sourceFilter_str .= ") ";
-                        $sql .= $sourceFilter_str;
-                        
-                    }  
+
+                        $sql .= $sourceFilter_str;    
+                    }
+                     
+                       
                 }
             }
 
@@ -182,9 +198,33 @@
                 }
             }
 
-            echo $sql;
+
+            if( !isset($_GET['searchBy']) && !isset($_GET['search_query']) && !isset($_GET['dateFrom']) && !isset($_GET['dateTo']) )
+            {
+                if(isset($_GET['sourcebox']))
+                    {
+                    
+                        $sourceFilter_str = "WHERE source in ("; 
+                        foreach($_GET['sourcebox'] as $source)
+                        {
+
+                            $sourceFilter_str .= "'" . $source . "'";
+                            if($source != end($_GET['sourcebox']))
+                            {
+                                $sourceFilter_str .= ",";
+                            }
+                        }
+
+                        $sourceFilter_str .= ") ";
+
+                        $sql .= $sourceFilter_str;    
+                    }
+            }
+            
             $sql .= "ORDER BY date DESC";
             $source_sql .= "ORDER BY source ASC";
+
+            echo $sql;
             $query = mysqli_query($connect, $sql) or die(mysqli_connect_error()); // execute search query
             $source_query = mysqli_query($connect, $source_sql) or die(mysqli_connect_error()); // execute source sidebar query
         ?>
@@ -195,55 +235,57 @@
             <div class="floatLeft" style="width: 18%; float:left">
                     <br>
                     <div class="panel panel-default">
-                        <div class="panel-heading">SOURCES (<?php echo mysqli_num_rows($source_query) ?>)</div>
-                            <div class="panel-body">
-                                <?php
+                        <div class="panel-heading" style="font-size:18px">
+                            Sources (<?php echo mysqli_num_rows($source_query) ?>)
+                        </div>
+                        <div class="panel-body">
+                            <?php
 
-                                    if(mysqli_num_rows($source_query) == 0)
+                                if(mysqli_num_rows($source_query) == 0)
+                                {
+                                    echo "No sources";
+                                }
+                                else
+                                {
+                                    $i = 0;
+                                    echo "<form action='search.php' method='GET'>";
+                                    echo "<button type='submit' class='btn btn-default' name='submit'>Apply Filter</button><br><br>";
+
+                                    $names = ['searchBy','search_query','dateFrom','dateTo'];
+
+                                    foreach($names as $var)
                                     {
-                                        echo "No sources";
+                                        if(isset($_GET[$var]))
+                                        {
+                                            echo "<input type='hidden' name=$var value=" . $_GET[$var] . ">";
+                                        }
                                     }
-                                    else
+
+                                    while ($row = mysqli_fetch_array($source_query)) 
                                     {
-                                        $i = 0;
-                                        echo "<form action='search.php' method='GET'>";
-                                        echo "<button type='submit' class='btn btn-default' name='submit'>Apply Filter</button><br><br>";
-
-                                        $names = ['searchBy','search_query','dateFrom','dateTo'];
-
-                                        foreach($names as $var)
+                                        $source = $row['source'];
+                                        echo "$source <input type='checkbox' name='sourcebox[]' ";
+                                        if(isset($_GET['sourcebox']))
                                         {
-                                            if(isset($_GET[$var]))
+                                            if(in_array($source,$_GET['sourcebox']))
                                             {
-                                                echo "<input type='hidden' name=$var value=" . $_GET[$var] . ">";
+                                                echo "checked = 'checked' ";
                                             }
-                                        }
 
-                                        while ($row = mysqli_fetch_array($source_query)) 
-                                        {
-                                            $source = $row['source'];
-                                            echo "$source <input type='checkbox' name='sourcebox[]' ";
-                                            if(isset($_GET['sourcebox']))
-                                            {
-                                                if(in_array($source,$_GET['sourcebox']))
-                                                {
-                                                    echo "checked = 'checked' ";
-                                                }
-
-                                            }
-                                            echo "value=$source><br>";
                                         }
-                                        echo "</form>";
+                                        echo "value=$source><br>";
                                     }
-                                    
-                                ?>
-                            </div>   
+                                    echo "</form>";
+                                }
+                                
+                            ?>
+                        </div>   
                     </div>
                     <br>
             </div>
 
             <div class="floatRight" style="width:81%; float: right; ">
-                <table id="results-table" style="background-color: white" width="90%" class="stripe hover"  align="center">
+                <table id="results-table" style="background-color: white" width="92%" class="stripe hover"  align="center">
                     <thead>
                         <tr align="center">
                         <td><strong>Title</strong></td>
