@@ -7,52 +7,19 @@
     mysqli_set_charset($connect, "utf8");
     mysqli_select_db($connect, "SupremeCourtApp") or die(mysqli_connect_error());
 
-    // base sql query - concatenate to as needed
-    // the default download will include the entire database
-    $sql = "SELECT date, title, source, article.idArticle, article.score, magnitude, entity, MAX(entity_instances.score), article_text FROM article LEFT JOIN (image NATURAL JOIN image_entities NATURAL JOIN entity_instances) ON article.idArticle = image.idArticle ";
+    // base sql query
+    // default search includes entire database
+    $sql = "SELECT DISTINCT title, date, source, article.idArticle, article.score, magnitude, entity, article_text, MAX(entity_instances.score) FROM (article NATURAL JOIN article_keywords NATURAL JOIN keyword_instances) LEFT JOIN (image NATURAL JOIN image_entities NATURAL JOIN entity_instances) ON article.idArticle = image.idArticle ";
    
     // build sql query based on search criteria
     if(isset($_GET['search_query']))
     {
-        if(isset($_GET['searchBy']))
-        {
-            $search_query = mysqli_real_escape_string($connect, $_GET['search_query']);
-            if($_GET['searchBy'] == 'title')
-            { 
-                $sql .= "WHERE title LIKE '%$search_query%' "; 
-            }
-            else if($_GET['searchBy'] == 'source')
-            { 
-                $sql .= "WHERE source LIKE '%$search_query%' "; 
-            }
-            else if($_GET['searchBy'] == 'keyword')
-            {
-                // keywords require special query
-                $sql = "SELECT DISTINCT title, date, source, article.idArticle, article.score, magnitude, entity, article_text, MAX(entity_instances.score) FROM (article NATURAL JOIN article_keywords NATURAL JOIN keyword_instances) LEFT JOIN (image NATURAL JOIN image_entities NATURAL JOIN entity_instances) ON article.idArticle = image.idArticle WHERE keyword LIKE '%$search_query%' ";
-            }
 
-            // if source filter has been applied, limit the sources to what has been checked
-            if(isset($_GET['sourcebox']))
-            {
-            
-                $sourceFilter_str = "AND source in ("; 
-                foreach($_GET['sourcebox'] as $source)
-                {
-
-                    $sourceFilter_str .= "'" . $source . "'";
-                    if($source != end($_GET['sourcebox']))
-                    {
-                        $sourceFilter_str .= ",";
-                    }
-                }
-
-                $sourceFilter_str .= ") ";
-
-                $sql .= $sourceFilter_str;    
-            }
-        }
+            $search_query = mysqli_real_escape_string($connect, trim($_GET['search_query']));
+            $query_str = "WHERE (title LIKE '%$search_query%' OR keyword LIKE '%$search_query%') ";
+            $sql .= $query_str; 
     }
-
+    
     // date range search - if no dates provided, ignore
     if(!empty($_GET['dateFrom']) && !empty($_GET['dateTo']))
     {
@@ -61,34 +28,42 @@
         $dateTo = date("Y-m-d",strtotime($_GET['dateTo']));
         if(isset($_GET['search_query']))
         {
-            $sql .= "AND date BETWEEN '$dateFrom' AND '$dateTo' ";
+            $date_str = "AND date BETWEEN '$dateFrom' AND '$dateTo' ";
+            $sql .= $date_str;
         }
         else
         {
-            $sql .= "WHERE date BETWEEN '$dateFrom' AND '$dateTo' ";
+            $date_str = "WHERE date BETWEEN '$dateFrom' AND '$dateTo' ";
+            $sql .= $date_str;
         }
     }
 
-    if( !isset($_GET['searchBy']) && !isset($_GET['search_query']) && !isset($_GET['dateFrom']) && !isset($_GET['dateTo']) )
+    // if source filter has been applied and search parameters set, limit the sources to what has been checked
+    if(isset($_GET['sourcebox']))
     {
-        if(isset($_GET['sourcebox']))
+        if(!isset($_GET['search_query']) && !isset($_GET['dateFrom']) && !isset($_GET['dateTo']))
+        {
+            $sourceFilter_str = "WHERE source in ("; 
+        }
+        else
+        {
+            $sourceFilter_str = "AND source in ("; 
+
+        }
+    
+        foreach($_GET['sourcebox'] as $source)
+        {
+
+            $sourceFilter_str .= "'" . $source . "'";
+            if($source != end($_GET['sourcebox']))
             {
-            
-                $sourceFilter_str = "WHERE source in ("; 
-                foreach($_GET['sourcebox'] as $source)
-                {
-
-                    $sourceFilter_str .= "'" . $source . "'";
-                    if($source != end($_GET['sourcebox']))
-                    {
-                        $sourceFilter_str .= ",";
-                    }
-                }
-
-                $sourceFilter_str .= ") ";
-
-                $sql .= $sourceFilter_str;    
+                $sourceFilter_str .= ",";
             }
+        }
+
+        $sourceFilter_str .= ") ";
+
+        $sql .= $sourceFilter_str;    
     }
 
     $sql .= "GROUP BY article.idArticle"; // finish query string
